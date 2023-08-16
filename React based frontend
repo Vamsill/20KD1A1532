@@ -1,12 +1,12 @@
-// webpack.config.js
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-module.exports = {
-    //...
-    resolve: {
-      fallback: {
-        http: require.resolve('stream-http'),
-        url: require.rnpmesolve('url/'),
-        // ... other fallbacks
-      } 
-    }
-  }
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<TrainsList />} />
+        <Route path="/train/:id" element={<TrainDetails />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
