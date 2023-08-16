@@ -1,0 +1,66 @@
+import React from 'react';
+import { BrowserRouter as Router, Route, Link, Switch } from 'react-router-dom';
+import './App.css';
+
+const trains = [
+  { id: 1, name: 'Express Train', schedule: '8:00 AM' },
+  { id: 2, name: 'Local Train', schedule: '9:30 AM' },
+  // Add more train data here
+];
+
+const TrainList = () => {
+  return (
+    <div>
+      <h2>All Trains</h2>
+      <ul>
+        {trains.map(train => (
+          <li key={train.id}>
+            <Link to={`/trains/${train.id}`}>{train.name}</Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+const TrainDetails = ({ match }) => {
+  const trainId = parseInt(match.params.id);
+  const train = trains.find(train => train.id === trainId);
+
+  return (
+    <div>
+      <h2>Train Details</h2>
+      {train ? (
+        <div>
+          <p>Name: {train.name}</p>
+          <p>Schedule: {train.schedule}</p>
+        </div>
+      ) : (
+        <p>Train not found</p>
+      )}
+    </div>
+  );
+};
+
+function App() {
+  return (
+    <Router>
+      <div className="App">
+        <nav>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+          </ul>
+        </nav>
+
+        <Switch>
+          <Route path="/trains/:id" component={TrainDetails} />
+          <Route path="/" component={TrainList} />
+        </Switch>
+      </div>
+    </Router>
+  );
+}
+
+export default App;
