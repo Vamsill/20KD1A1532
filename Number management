@@ -1,1 +1,39 @@
 
+import React from 'react';
+import './resolvejs.js'
+ 
+function App() {
+    const express = require('express');
+const axios = require('axios');
+const app = express();
+
+axios.get('/api/data')
+  .then(/*...*/)
+app.get('/numbers', async (req, res) => {
+  const urls = req.query.url;
+
+  const results = await Promise.allSettled(urls.map(async url => {
+    try {
+      const { data } = await axios.get(url, { timeout: 500 });
+      return data.numbers; 
+    } catch (err) {
+      return [];
+    }
+  }));
+
+  const numbers = results
+    .filter(result => result.status === 'fulfilled')
+    .map(result => result.value)
+    .flat()
+    .filter((value, index, self) => self.indexOf(value) === index)
+    .sort((a, b) => a - b);
+
+  res.json({ numbers });
+});
+}
+app.listen(8008, () => {
+  console.log('Number management service listening on port 8008'); 
+  
+});
+ 
+export default App;
