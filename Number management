@@ -1,39 +1,60 @@
+import React, { useState } from "react";
+import ReactDOM from "react-dom";
+import axios from "axios";
 
-import React from 'react';
-import './resolvejs.js'
- 
-function App() {
-    const express = require('express');
-const axios = require('axios');
-const app = express();
+const NumberManagementService = () => {
+  const [seenNumbers, setSeenNumbers] = useState([]);
+  const [numbersList, setNumbersList] = useState([]);
+  const [params, setParams] = useState({ url: "" });
 
-axios.get('/api/data')
-  .then(/*...*/)
-app.get('/numbers', async (req, res) => {
-  const urls = req.query.url;
-
-  const results = await Promise.allSettled(urls.map(async url => {
+  const getNumbersFromUrl = async (url) => {
     try {
-      const { data } = await axios.get(url, { timeout: 500 });
-      return data.numbers; 
-    } catch (err) {
-      return [];
+      const response = await axios.get(url);
+      if (response.status === 200) {
+        const data = await response.json();
+        const numbers = data.numbers;
+        for (const number of numbers) {
+          if (number in seenNumbers) {
+            continue;
+          }
+          seenNumbers.add(number);
+          numbersList.push(number);
+        }
+      } else {
+        console.log(f,"Error getting numbers from {url}: {response.status}");
+      }
+    } catch (error) {
+      console.log(error);
     }
-  }));
+  };
 
-  const numbers = results
-    .filter(result => result.status === 'fulfilled')
-    .map(result => result.value)
-    .flat()
-    .filter((value, index, self) => self.indexOf(value) === index)
-    .sort((a, b) => a - b);
+  const handleChange = (event) => {
+    setParams({ ...params, url: event.target.value });
+  };
 
-  res.json({ numbers });
-});
-}
-app.listen(8008, () => {
-  console.log('Number management service listening on port 8008'); 
-  
-});
- 
-export default App;
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    getNumbersFromUrl(params.url);
+  };
+
+  return (
+    <div>
+      <h1>Number Management Service</h1>
+      <input
+        type="text"
+        placeholder="Enter a URL"
+        value={params.url}
+        onChange={handleChange}
+      />
+      <button onClick={handleSubmit}>Get Numbers</button>
+      <ul>
+        {numbersList.map((number) => (
+          <li key={number}>{number}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+const rootElement = document.getElementById("root");
+ReactDOM.render(<NumberManagementService />, rootElement);
